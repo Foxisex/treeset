@@ -33,6 +33,9 @@ namespace treeset {
             auto operator<=>(const Node<T>& rhs) const {
                 return key <=> rhs.key;
             }
+            bool operator==(const Node<T>& rhs) const {
+                return key == rhs.key;
+            }
         };
     }  // namespace detail
 
