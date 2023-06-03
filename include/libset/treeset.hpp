@@ -1,7 +1,9 @@
 #pragma once
 
+#include <algorithm>
 #include <compare>
 #include <iostream>
+#include <memory>
 
 namespace treeset {
 
@@ -30,10 +32,10 @@ namespace treeset {
                   left(left_),
                   right(right_){};
 
-            auto operator<=>(const Node<T>& rhs) const {
+            auto operator<=>(const Node& rhs) const {
                 return key <=> rhs.key;
             }
-            bool operator==(const Node<T>& rhs) const {
+            bool operator==(const Node& rhs) const {
                 return key == rhs.key;
             }
         };
@@ -84,6 +86,7 @@ namespace treeset {
                 return null_node;
             }
         }
+
         void clear(detail::Node<T>* node) {
             if (node == null_node) {
                 return;
@@ -94,6 +97,15 @@ namespace treeset {
             delete node;
             node = null_node;
         }
+
+        // void clear(std::shared_ptr<detail::Node<T>> node) {
+        //     node = null_node;
+        //     node->left = null_node;
+        //     node->right = null_node;
+        //     size_ = 0;
+
+        //     std::cout << node->key << std::endl;
+        // }
 
         detail::Node<T>* find(T key, detail::Node<T>* node) {
             while (node != null_node) {
@@ -115,7 +127,7 @@ namespace treeset {
         }
 
         void rotate_left(detail::Node<T>* node) {
-            detail::Node<T>* right = node->right;
+            auto right = node->right;
             if (node == null_node || right == null_node) {
                 return;
             }
@@ -140,7 +152,7 @@ namespace treeset {
         }
 
         void rotate_right(detail::Node<T>* root) {
-            detail::Node<T>* left = root->left;
+            auto left = root->left;
             if (root == null_node || left == null_node) {
                 return;
             }
@@ -170,12 +182,12 @@ namespace treeset {
                     node->color = BLACK;
                     return;
                 }
-                detail::Node<T>* parent = node->parent;
+                auto parent = node->parent;
                 if (parent->color == BLACK) {
                     return;
                 } else {
-                    detail::Node<T>* unc = uncle(node);
-                    detail::Node<T>* grandpa = grandparent(node);
+                    auto unc = uncle(node);
+                    auto grandpa = grandparent(node);
 
                     if (unc->color == RED) {
                         unc->color = BLACK;
@@ -214,7 +226,7 @@ namespace treeset {
                 return;
             }
 
-            detail::Node<T>* brother = second_child(parent, node);
+            auto brother = second_child(parent, node);
             if (brother->color == RED) {
                 parent->color = RED;
                 brother->color = BLACK;
@@ -273,14 +285,14 @@ namespace treeset {
         }
 
         bool remove(T key, detail::Node<T>* root) {
-            detail::Node<T>* node = find(key, root);
+            auto node = find(key, root);
             if (node && node->key == key) {
                 if (node->left != null_node && node->right != null_node) {
-                    detail::Node<T>* tmp = min(node->right);
+                    auto tmp = min(node->right);
                     node->key = tmp->key;
                     return remove(tmp->key, tmp);
                 } else if (node->left != null_node) {
-                    detail::Node<T>* parent = node->parent;
+                    auto parent = node->parent;
                     if (parent->left == node) {
                         parent->left = node->left;
                     } else if (parent->right == node) {
@@ -301,7 +313,7 @@ namespace treeset {
                     --size_;
                     return true;
                 } else {
-                    detail::Node<T>* parent = node->parent;
+                    auto parent = node->parent;
                     if (parent->left == node) {
                         parent->left = node->right;
                     } else if (parent->right == node) {
@@ -338,53 +350,173 @@ namespace treeset {
         };
 
         Set(T key)
-            : root(key), null_node(new detail::Node<T>(0, BLACK)), size_(1){};
+            : root(new detail::Node<T>(key, BLACK)),
+              null_node(new detail::Node<T>(0, BLACK)),
+              size_(1) {
+            null_node->parent = null_node;
+            null_node->left = null_node;
+            null_node->right = null_node;
+            root->left = null_node;
+            root->right = null_node;
+            root->parent = null_node;
+        };
 
-        Set(Set&& rhs) noexcept {
-            root = rhs.root;
-            null_node = rhs.null_node;
-            size_ = rhs.size_;
-            rhs.root = nullptr;
-            rhs.null_node = nullptr;
-            rhs.size_ = nullptr;
+        void print_tree(detail::Node<T>* root, std::string path) {
+            if (root == null_node) {
+                return;
+            }
+            print_tree(root->left, path + "l");
+            std::cout << root->key << " " << path << std::endl;
+            print_tree(root->right, path + "r");
         }
 
-        Set& operator=(const Set& rhs) {
-            if (this == &rhs) {
-                return *this;
+        void print() {
+            std::cout << root << " " << root->key << " " << root->left << " "
+                      << root->right << std::endl;
+            // print_tree(root, "m");
+        }
+
+        // Set(Set& rhs) noexcept {
+        //     root = rhs.root;
+        //     null_node = rhs.null_node;
+        //     size_ = rhs.size_;
+        //     rhs.root = nullptr;
+        //     rhs.null_node = nullptr;
+        //     rhs.size_ = 0;
+        // }
+
+        // Set& operator=(const Set& rhs) {
+        //     if (this == &rhs) {
+        //         return *this;
+        //     }
+        //     if (size_) {
+        //         clear();
+        //     }
+        //     delete null_node;
+        //     root = rhs.root;
+        //     null_node = rhs.null_node;
+        //     size_ = rhs.size_;
+
+        //     return *this;
+        // }
+
+        // Set& operator=(Set rhs) noexcept {
+        //     if (this == &rhs) {
+        //         return *this;
+        //     }
+        //     root = std::move(rhs.root);
+        //     null_node = std::move(rhs.null_node);
+        //     size_ = std::move(rhs.size_);
+
+        //     return *this;
+        // }
+
+        //             //Конструктор копирования:
+        // Set(const Set& other) : root(0), null_node(new detail::Node<T>(0,
+        // BLACK)), size_(other.size_) {
+        //             //root = copy(other.root);
+        //             null_node->parent = other.null_node->parent;
+        //             null_node->left = other.null_node->left;
+        //             null_node->right = other.null_node->right;
+        //             null_node = other.null_node;
+        //             root = copy(other.root, other.null_node);
+        //             // for(int i = size)
+        //         };
+        Set(const Set<T>& other) : root(nullptr), null_node(nullptr), size_(0) {
+            if (other.root != nullptr) {
+                // создаем новый корневой узел
+                // root = new detail::Node<T>(other.root->key,
+                // other.root->color);
+                null_node = new detail::Node<T>(0);
+                // size_ = 1;
+
+                // копируем остальные узлы рекурсивно
+                copyNodes(&root, other.root, &null_node, other.null_node);
             }
+        }
+
+        void copyNodes(
+            detail::Node<T>** newNode,
+            const detail::Node<T>* oldNode,
+            detail::Node<T>** parent,
+            const detail::Node<T>* oth_null) {
+            if (oldNode == oth_null) {
+                *newNode = null_node;
+                return;
+            }
+
+            *newNode =
+                new detail::Node<T>(oldNode->key, oldNode->color, *parent);
+            size_++;
+
+            copyNodes(&(*newNode)->left, oldNode->left, newNode, oth_null);
+            copyNodes(&(*newNode)->right, oldNode->right, newNode, oth_null);
+        }
+
+        //Оператор присваивания:
+        Set& operator=(const Set& other) {
+            if (this != &other) {
+                clear();
+                size_ = other.size_;
+                root = (other.root);
+            }
+            return *this;
+        };
+
+        //Конструктор перемещения:
+        Set(Set&& other)
+            : root(other.root), null_node(other.null_node), size_(other.size_) {
+            other.root = nullptr;
+            other.null_node = nullptr;
+            other.size_ = 0;
+        };
+
+        //Оператор перемещения:
+        Set& operator=(Set&& other) {
+            if (this != &other) {
+                clear();
+                root = other.root;
+                null_node = other.null_node;
+                size_ = other.size_;
+                other.root = nullptr;
+                other.null_node = nullptr;
+                other.size_ = 0;
+            }
+            return *this;
+        };
+
+        virtual ~Set() {
+            std::cout << "VERTOLET" << this << std::endl;
             if (size_) {
                 clear();
             }
-            delete null_node;
-            root = rhs.root;
-            null_node = rhs.null_node;
-            size_ = rhs.size_;
-
-            return *this;
+            if (null_node) {
+                delete null_node;
+            }
         }
 
-        Set& operator=(Set&& rhs) noexcept {
-            if (this == &rhs) {
-                return *this;
+        detail::Node<T>* copy(
+            detail::Node<T>* root,
+            detail::Node<T>* null_node) {
+            if (root == null_node) {
+                return null_node;
             }
-            root = std::move(rhs.root);
-            null_node = std::move(rhs.null_node);
-            size_ = std::move(rhs.size_);
+            detail::Node<T>* node(0);
+            node->left = copy(root->left, null_node);
+            node->right = copy(root->right, null_node);
 
-            return *this;
-        }
-
-        ~Set() {
-            if (size_) {
-                clear();
-            }
-            delete null_node;
+            return node;
         }
 
         void clear() {
             clear(root);
         }
+
+        // void clear() {
+        //     root = null_node;
+        //     size_ = 0;
+        //     std::cout << root->key << std::endl;
+        // }
 
         bool contains(T key) {
             detail::Node<T>* tmp = find(key, root);
@@ -461,7 +593,7 @@ namespace treeset {
             //префиксный декремент
             Iterator operator--() {
                 if (current_ == null_node_) {
-                    detail::Node<T>* max = root_;
+                    auto max = root_;
                     while (max->right != null_node_) {
                         max = max->right;
                     }
@@ -529,15 +661,18 @@ namespace treeset {
             detail::Node<T>* root_;
         };
 
-        Iterator<T> begin() {
+        const Iterator<T> begin() const {
             detail::Node<T>* min = root;
+            if (min == null_node) {
+                return Iterator<T>(null_node, null_node, null_node, null_node);
+            }
             while (min->left != null_node) {
                 min = min->left;
             }
             return Iterator<T>(min, null_node, null_node, root);
         }
 
-        Iterator<T> end() {
+        const Iterator<T> end() const {
             return Iterator<T>(null_node, null_node, null_node, root);
         }
 
