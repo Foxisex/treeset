@@ -97,7 +97,7 @@ TEST(TestSet, erase) {
     }
     set.erase(7);
     set.erase(7);
-    std::vector<int> expected_result = {0, 1, 2, 8, 9};
+    const std::vector<int> expected_result = {0, 1, 2, 8, 9};
 
     int index = 0;
     for (const auto& setElem : set) {
@@ -197,6 +197,90 @@ TEST(TestSet, find) {
     res = set.find(-222);
 
     ASSERT_EQ(res, set.end());
+}
+
+TEST(TestIterator, compare) {
+    treeset::Set<int> set;
+
+    set.insert(0);
+    set.insert(1);
+    set.insert(2);
+
+    auto iter1 = set.begin();
+    auto iter2 = iter1 + 2;
+    auto iter3 = set.begin();
+
+    ASSERT_TRUE(iter1 == iter3);
+    ASSERT_TRUE(iter1 != iter2);
+    ASSERT_FALSE(iter1 == iter2);
+    ASSERT_FALSE(iter1 != iter3);
+    ASSERT_TRUE(iter1 < iter2);
+    ASSERT_FALSE(iter2 <= iter3);
+    ASSERT_FALSE(iter1 > iter3);
+    ASSERT_TRUE(iter2 >= iter1);
+}
+
+TEST(TestIterator, increment1) {
+    treeset::Set<int> set;
+    for (int i = 0; i < 10; i++) {
+        set.insert(i);
+    }
+
+    auto iter1 = set.begin();
+    auto iter2 = set.begin();
+
+    const std::vector<int> expected_result = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+    for (int i = 0; i < 10; i++) {
+        ASSERT_TRUE(iter1 == iter2);
+        ASSERT_FALSE(iter1 != iter2);
+        ASSERT_EQ(*iter1, expected_result[i]);
+        ++iter1;
+        iter2++;
+    }
+}
+
+TEST(TestIterator, increment2) {
+    treeset::Set<int> set;
+    for (int i = 0; i < 10; i++) {
+        set.insert(i);
+    }
+
+    auto iter1 = set.begin();
+    auto iter2 = iter1 + 5;
+    iter1 += 5;
+    ASSERT_EQ(*iter1, *iter2);
+}
+
+TEST(TestIterator, decrement) {
+    treeset::Set<int> set;
+    for (int i = 0; i < 10; i++) {
+        set.insert(i);
+    }
+
+    auto iter1 = set.begin() + 6;
+    auto iter2 = iter1;
+    auto iter3 = iter1;
+
+    iter1--;
+    --iter1;
+    iter2 -= 2;
+    iter3 = iter3 - 2;
+
+    ASSERT_TRUE(iter1 == iter2);
+    ASSERT_TRUE(iter1 == iter3);
+    ASSERT_FALSE(iter1 != iter2);
+}
+
+TEST(TestIterator, bidirIterator) {
+    treeset::Set<int> set;
+    for (int i = 0; i < 10; i++) {
+        set.insert(i);
+    }
+
+    auto iter1 = set.begin() + 5;
+    auto tmp = iter1;
+    ASSERT_TRUE(tmp == --(++iter1));
 }
 
 int main(int argc, char** argv) {
