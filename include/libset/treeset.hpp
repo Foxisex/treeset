@@ -578,10 +578,6 @@ namespace treeset {
                 return *this;
             }
 
-            const Iterator& operator--() const {
-                return --(const_cast<Iterator>(*this));
-            }
-
             // постфиксный декремент
             Iterator operator--(int) {
                 auto old = *this;
@@ -675,6 +671,15 @@ namespace treeset {
                 return std::make_pair(find(key), true);
             }
             return std::make_pair(find(key), false);
+        }
+
+        Iterator<T> lower_bound(const T& key) {
+            for (auto i = begin(); i != end(); i++) {
+                if (*i == key) {
+                    return i;
+                }
+            }
+            return end();
         }
     };
 
