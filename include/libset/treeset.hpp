@@ -332,6 +332,33 @@ namespace treeset {
             return false;
         }
 
+        void copy_nodes(
+            detail::Node<T>** newNode,
+            const detail::Node<T>* oldNode,
+            detail::Node<T>** parent,
+            const detail::Node<T>* oth_null) {
+            if (oldNode == oth_null) {
+                *newNode = null_node;
+                return;
+            }
+
+            *newNode =
+                new detail::Node<T>(oldNode->key, oldNode->color, *parent);
+            size_++;
+
+            copy_nodes(&(*newNode)->left, oldNode->left, newNode, oth_null);
+            copy_nodes(&(*newNode)->right, oldNode->right, newNode, oth_null);
+        }
+
+        void print_tree(detail::Node<T>* root, std::string path) {
+            if (root == null_node) {
+                return;
+            }
+            print_tree(root->left, path + "l");
+            std::cout << root->key << " " << path << std::endl;
+            print_tree(root->right, path + "r");
+        }
+
        public:
         Set() : root(0), null_node(new detail::Node<T>(0, BLACK)), size_(0) {
             null_node->parent = null_node;
@@ -352,15 +379,6 @@ namespace treeset {
             root->parent = null_node;
         };
 
-        void print_tree(detail::Node<T>* root, std::string path) {
-            if (root == null_node) {
-                return;
-            }
-            print_tree(root->left, path + "l");
-            std::cout << root->key << " " << path << std::endl;
-            print_tree(root->right, path + "r");
-        }
-
         void print() {
             print_tree(root, "m");
         }
@@ -370,24 +388,6 @@ namespace treeset {
                 null_node = new detail::Node<T>(0);
                 copy_nodes(&root, other.root, &null_node, other.null_node);
             }
-        }
-
-        void copy_nodes(
-            detail::Node<T>** newNode,
-            const detail::Node<T>* oldNode,
-            detail::Node<T>** parent,
-            const detail::Node<T>* oth_null) {
-            if (oldNode == oth_null) {
-                *newNode = null_node;
-                return;
-            }
-
-            *newNode =
-                new detail::Node<T>(oldNode->key, oldNode->color, *parent);
-            size_++;
-
-            copy_nodes(&(*newNode)->left, oldNode->left, newNode, oth_null);
-            copy_nodes(&(*newNode)->right, oldNode->right, newNode, oth_null);
         }
 
         //Оператор копирования:
