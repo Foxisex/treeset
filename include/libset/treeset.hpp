@@ -98,15 +98,6 @@ namespace treeset {
             node = null_node;
         }
 
-        // void clear(std::shared_ptr<detail::Node<T>> node) {
-        //     node = null_node;
-        //     node->left = null_node;
-        //     node->right = null_node;
-        //     size_ = 0;
-
-        //     std::cout << node->key << std::endl;
-        // }
-
         detail::Node<T>* find(T key, detail::Node<T>* node) {
             while (node != null_node) {
                 if (node->key < key) {
@@ -371,71 +362,17 @@ namespace treeset {
         }
 
         void print() {
-            std::cout << root << " " << root->key << " " << root->left << " "
-                      << root->right << std::endl;
-            // print_tree(root, "m");
+            print_tree(root, "m");
         }
 
-        // Set(Set& rhs) noexcept {
-        //     root = rhs.root;
-        //     null_node = rhs.null_node;
-        //     size_ = rhs.size_;
-        //     rhs.root = nullptr;
-        //     rhs.null_node = nullptr;
-        //     rhs.size_ = 0;
-        // }
-
-        // Set& operator=(const Set& rhs) {
-        //     if (this == &rhs) {
-        //         return *this;
-        //     }
-        //     if (size_) {
-        //         clear();
-        //     }
-        //     delete null_node;
-        //     root = rhs.root;
-        //     null_node = rhs.null_node;
-        //     size_ = rhs.size_;
-
-        //     return *this;
-        // }
-
-        // Set& operator=(Set rhs) noexcept {
-        //     if (this == &rhs) {
-        //         return *this;
-        //     }
-        //     root = std::move(rhs.root);
-        //     null_node = std::move(rhs.null_node);
-        //     size_ = std::move(rhs.size_);
-
-        //     return *this;
-        // }
-
-        //             //Конструктор копирования:
-        // Set(const Set& other) : root(0), null_node(new detail::Node<T>(0,
-        // BLACK)), size_(other.size_) {
-        //             //root = copy(other.root);
-        //             null_node->parent = other.null_node->parent;
-        //             null_node->left = other.null_node->left;
-        //             null_node->right = other.null_node->right;
-        //             null_node = other.null_node;
-        //             root = copy(other.root, other.null_node);
-        //             // for(int i = size)
-        //         };
         Set(const Set<T>& other) : root(nullptr), null_node(nullptr), size_(0) {
             if (other.root != nullptr) {
-                // создаем новый корневой узел
-                // root = new detail::Node<T>(other.root->key,
-                // other.root->color);
                 null_node = new detail::Node<T>(0);
-                // size_ = 1;
-
-                // копируем остальные узлы рекурсивно
-                copyNodes(&root, other.root, &null_node, other.null_node);
+                copy_nodes(&root, other.root, &null_node, other.null_node);
             }
         }
 
-        void copyNodes(
+        void copy_nodes(
             detail::Node<T>** newNode,
             const detail::Node<T>* oldNode,
             detail::Node<T>** parent,
@@ -449,16 +386,16 @@ namespace treeset {
                 new detail::Node<T>(oldNode->key, oldNode->color, *parent);
             size_++;
 
-            copyNodes(&(*newNode)->left, oldNode->left, newNode, oth_null);
-            copyNodes(&(*newNode)->right, oldNode->right, newNode, oth_null);
+            copy_nodes(&(*newNode)->left, oldNode->left, newNode, oth_null);
+            copy_nodes(&(*newNode)->right, oldNode->right, newNode, oth_null);
         }
 
-        //Оператор присваивания:
+        //Оператор копирования:
         Set& operator=(const Set& other) {
             if (this != &other) {
                 clear();
-                size_ = other.size_;
-                root = (other.root);
+                size_ = 0;
+                copy_nodes(&root, other.root, &null_node, other.null_node);
             }
             return *this;
         };
@@ -486,7 +423,6 @@ namespace treeset {
         };
 
         virtual ~Set() {
-            std::cout << "VERTOLET" << this << std::endl;
             if (size_) {
                 clear();
             }
@@ -511,12 +447,6 @@ namespace treeset {
         void clear() {
             clear(root);
         }
-
-        // void clear() {
-        //     root = null_node;
-        //     size_ = 0;
-        //     std::cout << root->key << std::endl;
-        // }
 
         bool contains(T key) {
             detail::Node<T>* tmp = find(key, root);
@@ -558,6 +488,21 @@ namespace treeset {
                   prev_(it.prev_),
                   null_node_(it.null_node_),
                   root_(it.root_){};
+
+            Iterator& operator=(const Iterator& it) {
+                this->current_ = it.current_;
+                this->prev_ = it.prev_;
+                this->null_node_ = it.null_node_;
+                this->root_ = it.root_;
+                return *this;
+            }
+
+            std::pair<Iterator<T>, bool>& operator=(
+                const std::pair<Iterator<T>, bool>& other) {
+                this->first = other.first;
+                this->second = other.second;
+                return *this;
+            }
 
             // префиксный инкремент
             Iterator& operator++() {
