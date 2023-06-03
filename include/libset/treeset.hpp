@@ -422,17 +422,17 @@ namespace treeset {
             return *this;
         };
 
-        virtual ~Set() {
-            if (size_) {
-                clear();
-            }
+        ~Set() {
+            clear();
             if (null_node) {
                 delete null_node;
             }
         }
-        
+
         void clear() {
-            clear(root);
+            if (size_) {
+                clear(root);
+            }
         }
 
         bool contains(T key) {
@@ -516,10 +516,21 @@ namespace treeset {
             }
 
             // постфиксный инкремент
-            const Iterator operator++(int) {
+            Iterator operator++(int) {
                 auto old = *this;
                 ++(*this);
                 return old;
+            }
+
+            Iterator& operator+(int value) {
+                for (int i = 0; i < value; i++) {
+                    (*this)++;
+                }
+                return *this;
+            }
+
+            Iterator& operator+=(int value) {
+                return *this = *this + value;
             }
 
             //префиксный декремент
@@ -568,10 +579,21 @@ namespace treeset {
             }
 
             // постфиксный декремент
-            const Iterator operator--(int) {
+            Iterator operator--(int) {
                 auto old = *this;
                 --(*this);
                 return old;
+            }
+
+            Iterator& operator-(int value) {
+                for (int i = 0; i < value; i++) {
+                    (*this)--;
+                }
+                return *this;
+            }
+
+            Iterator& operator-=(int value) {
+                return *this = *this - value;
             }
 
             reference operator*() const {
@@ -593,7 +615,7 @@ namespace treeset {
             detail::Node<T>* root_;
         };
 
-        const Iterator<T> begin() const {
+        Iterator<T> begin() const {
             detail::Node<T>* min = root;
             if (min == null_node) {
                 return Iterator<T>(null_node, null_node, null_node, null_node);
@@ -604,7 +626,7 @@ namespace treeset {
             return Iterator<T>(min, null_node, null_node, root);
         }
 
-        const Iterator<T> end() const {
+        Iterator<T> end() const {
             return Iterator<T>(null_node, null_node, null_node, root);
         }
 
