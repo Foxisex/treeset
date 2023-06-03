@@ -430,20 +430,7 @@ namespace treeset {
                 delete null_node;
             }
         }
-
-        detail::Node<T>* copy(
-            detail::Node<T>* root,
-            detail::Node<T>* null_node) {
-            if (root == null_node) {
-                return null_node;
-            }
-            detail::Node<T>* node(0);
-            node->left = copy(root->left, null_node);
-            node->right = copy(root->right, null_node);
-
-            return node;
-        }
-
+        
         void clear() {
             clear(root);
         }
