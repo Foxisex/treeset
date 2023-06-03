@@ -538,7 +538,7 @@ namespace treeset {
             }
 
             //префиксный декремент
-            Iterator operator--() {
+            Iterator& operator--() {
                 if (current_ == null_node_) {
                     auto max = root_;
                     while (max->right != null_node_) {
