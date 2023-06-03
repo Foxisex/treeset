@@ -522,15 +522,19 @@ namespace treeset {
                 return old;
             }
 
-            Iterator& operator+(int value) {
+            Iterator operator+(int value) {
+                auto new_iter = *this;
+                for (int i = 0; i < value; i++) {
+                    new_iter++;
+                }
+                return new_iter;
+            }
+
+            Iterator& operator+=(int value) {
                 for (int i = 0; i < value; i++) {
                     (*this)++;
                 }
                 return *this;
-            }
-
-            Iterator& operator+=(int value) {
-                return *this = *this + value;
             }
 
             //префиксный декремент
@@ -585,23 +589,27 @@ namespace treeset {
                 return old;
             }
 
-            Iterator& operator-(int value) {
+            Iterator operator-(int value) {
+                auto new_iter = *this;
+                for (int i = 0; i < value; i++) {
+                    new_iter--;
+                }
+                return new_iter;
+            }
+
+            Iterator& operator-=(int value) {
                 for (int i = 0; i < value; i++) {
                     (*this)--;
                 }
                 return *this;
             }
 
-            Iterator& operator-=(int value) {
-                return *this = *this - value;
-            }
-
             reference operator*() const {
                 return current_->key;
             }
 
-            bool operator<=>(const Iterator& rhs) const {
-                return current_ <=> rhs.current_;
+            auto operator<=>(const Iterator& rhs) const {
+                return current_->key <=> rhs.current_->key;
             }
 
             bool operator==(const Iterator& rhs) const {
