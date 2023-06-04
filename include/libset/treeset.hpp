@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <compare>
+#include <initializer_list>
 #include <iostream>
 #include <memory>
 
@@ -401,6 +402,24 @@ namespace treeset {
             root->right = null_node;
             root->parent = null_node;
         };
+
+        Set(std::initializer_list<T> list)
+            : root(nullptr),
+              null_node(new detail::Node<T>(0, BLACK)),
+              min_(nullptr),
+              max_(nullptr),
+              size_(0) {
+            null_node->parent = null_node;
+            null_node->left = null_node;
+            null_node->right = null_node;
+            root = null_node;
+            min_ = &null_node;
+            max_ = &null_node;
+
+            for (const auto& lElem : list) {
+                insert(lElem);
+            }
+        }
 
         void print() {
             std::cout << (*min_)->key << std::endl;
