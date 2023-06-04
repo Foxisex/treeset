@@ -566,6 +566,9 @@ namespace treeset {
                 return *this;
             }
 
+            ~Iterator() {
+            }
+
             std::pair<Iterator<T>, bool>& operator=(
                 const std::pair<Iterator<T>, bool>& other) {
                 this->first = other.first;
