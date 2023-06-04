@@ -535,11 +535,34 @@ namespace treeset {
                   null_node_(it.null_node_),
                   root_(it.root_){};
 
+            Iterator(Iterator&& it)
+                : current_(it.current_),
+                  prev_(it.prev_),
+                  null_node_(it.null_node_),
+                  root_(it.root_) {
+                it.current_ = nullptr;
+                it.prev_ = nullptr;
+                it.null_node_ = nullptr;
+                it.root_ = nullptr;
+            }
+
             Iterator& operator=(const Iterator& it) {
                 this->current_ = it.current_;
                 this->prev_ = it.prev_;
                 this->null_node_ = it.null_node_;
                 this->root_ = it.root_;
+                return *this;
+            }
+
+            Iterator& operator=(Iterator&& it) {
+                current_ = it.current_;
+                prev_ = it.prev_;
+                null_node_ = it.null_node_;
+                root_ = it.root_;
+                it.current_ = nullptr;
+                it.prev_ = nullptr;
+                it.null_node_ = nullptr;
+                it.root_ = nullptr;
                 return *this;
             }
 

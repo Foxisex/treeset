@@ -46,7 +46,7 @@ TEST(TestSet, constructors) {
     }
 }
 
-TEST(TestSet, assigments) {
+TEST(TestSet, assignments) {
     treeset::Set<int> set1;
 
     for (int i = 0; i < 100; i++) {
@@ -271,6 +271,62 @@ TEST(TestSet, swap) {
         ASSERT_EQ(sElem, *iter);
         iter++;
     }
+}
+
+TEST(TestIterator, constructors) {
+    treeset::Set<int> set{1, 2, 3, 4, 5};
+
+    auto iter = set.begin() + 2;
+    auto copy_iter(iter);
+
+    ASSERT_EQ(*iter, *copy_iter);
+
+    iter += 2;
+    copy_iter++;
+
+    ASSERT_EQ(*iter, *copy_iter + 1);
+
+    iter -= 2;
+    copy_iter -= 1;
+
+    ASSERT_EQ(*iter, *copy_iter);
+
+    auto move_iter(std::move(iter));
+
+    ASSERT_EQ(*move_iter, *copy_iter);
+
+    copy_iter++;
+    move_iter++;
+
+    ASSERT_EQ(*move_iter, *copy_iter);
+}
+
+TEST(TestIterator, assignments) {
+    treeset::Set<int> set{1, 2, 3, 4, 5};
+
+    auto iter = set.begin() + 2;
+    auto copy_iter = iter;
+
+    ASSERT_EQ(*iter, *copy_iter);
+
+    iter += 2;
+    copy_iter++;
+
+    ASSERT_EQ(*iter, *copy_iter + 1);
+
+    iter -= 2;
+    copy_iter -= 1;
+
+    ASSERT_EQ(*iter, *copy_iter);
+
+    auto move_iter = std::move(iter);
+
+    ASSERT_EQ(*move_iter, *copy_iter);
+
+    copy_iter++;
+    move_iter++;
+
+    ASSERT_EQ(*move_iter, *copy_iter);
 }
 
 TEST(TestIterator, compare) {
