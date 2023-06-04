@@ -742,6 +742,17 @@ namespace treeset {
             }
             return end();
         }
+
+        Iterator<T> upper_bound(const T& key) {
+            auto l_bound = lower_bound(key);
+            if (l_bound != end()) {
+                while (*l_bound == key && l_bound != end()) {
+                    l_bound++;
+                }
+                return l_bound;
+            }
+            return end();
+        }
     };
 
 }  // namespace treeset

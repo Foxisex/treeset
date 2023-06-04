@@ -218,6 +218,21 @@ TEST(TestSet, lowerBound) {
     ASSERT_EQ(iter2, set.end());
 }
 
+TEST(TestSet, upperBound) {
+    treeset::Set<int> set;
+    for (int i = 0; i < 10; i++) {
+        set.insert(i);
+    }
+
+    auto iter1 = set.find(9);
+    auto iter2 = set.upper_bound(8);
+
+    ASSERT_EQ(*iter1, *iter2);
+
+    // iter2 = set.upper_bound(-100);
+    // ASSERT_EQ(iter2, set.end());
+}
+
 TEST(TestIterator, compare) {
     treeset::Set<int> set;
 
