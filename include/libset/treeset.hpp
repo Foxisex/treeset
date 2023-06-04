@@ -46,6 +46,8 @@ namespace treeset {
        private:
         detail::Node<T>* root;
         detail::Node<T>* null_node;
+        detail::Node<T>** min_;
+        detail::Node<T>** max_;
         std::size_t size_;
 
         detail::Node<T>* min(detail::Node<T>* node) {
@@ -55,12 +57,12 @@ namespace treeset {
             return node;
         }
 
-        detail::Node<T>* max(detail::Node<T>* node) {
-            while (node->right != null_node) {
-                node = node->right;
-            }
-            return node;
-        }
+        // detail::Node<T>* max(detail::Node<T>* node) {
+        //     while (node->right != null_node) {
+        //         node = node->right;
+        //     }
+        //     return node;
+        // }
 
         detail::Node<T>* grandparent(detail::Node<T>* node) {
             return node->parent->parent;
@@ -129,6 +131,9 @@ namespace treeset {
 
             right->left = node;
             right->parent = node->parent;
+            if (right->left->key == (*min_)->key) {
+                min_ = &right->left;
+            }
             node->parent = right;
 
             if (right->parent != null_node) {
@@ -154,6 +159,9 @@ namespace treeset {
 
             left->right = root;
             left->parent = root->parent;
+            if (left->right->key == (*max_)->key) {
+                max_ = &left->right;
+            }
             root->parent = left;
 
             if (left->parent != null_node) {
@@ -336,8 +344,8 @@ namespace treeset {
             detail::Node<T>** newNode,
             const detail::Node<T>* oldNode,
             detail::Node<T>** parent,
-            const detail::Node<T>* oth_null) {
-            if (oldNode == oth_null) {
+            const Set<T>& other) {
+            if (oldNode == other.null_node) {
                 *newNode = null_node;
                 return;
             }
@@ -346,8 +354,14 @@ namespace treeset {
                 new detail::Node<T>(oldNode->key, oldNode->color, *parent);
             size_++;
 
-            copy_nodes(&(*newNode)->left, oldNode->left, newNode, oth_null);
-            copy_nodes(&(*newNode)->right, oldNode->right, newNode, oth_null);
+            copy_nodes(&(*newNode)->left, oldNode->left, newNode, other);
+            copy_nodes(&(*newNode)->right, oldNode->right, newNode, other);
+            if (oldNode->left == *(other.min_)) {
+                min_ = &(*newNode)->left;
+            }
+            if (oldNode->right == *(other.max_)) {
+                max_ = &(*newNode)->right;
+            }
         }
 
         void print_tree(detail::Node<T>* root, std::string path) {
@@ -360,16 +374,25 @@ namespace treeset {
         }
 
        public:
-        Set() : root(0), null_node(new detail::Node<T>(0, BLACK)), size_(0) {
+        Set()
+            : root(nullptr),
+              null_node(new detail::Node<T>(0, BLACK)),
+              min_(nullptr),
+              max_(nullptr),
+              size_(0) {
             null_node->parent = null_node;
             null_node->left = null_node;
             null_node->right = null_node;
             root = null_node;
+            min_ = &null_node;
+            max_ = &null_node;
         };
 
         Set(T key)
             : root(new detail::Node<T>(key, BLACK)),
               null_node(new detail::Node<T>(0, BLACK)),
+              min_(&root),
+              max_(&root),
               size_(1) {
             null_node->parent = null_node;
             null_node->left = null_node;
@@ -380,13 +403,20 @@ namespace treeset {
         };
 
         void print() {
+            std::cout << (*min_)->key << std::endl;
+            std::cout << (*max_)->key << std::endl;
             print_tree(root, "m");
         }
 
-        Set(const Set<T>& other) : root(nullptr), null_node(nullptr), size_(0) {
+        Set(const Set<T>& other)
+            : root(nullptr),
+              null_node(nullptr),
+              min_(nullptr),
+              max_(nullptr),
+              size_(0) {
             if (other.root != nullptr) {
                 null_node = new detail::Node<T>(0);
-                copy_nodes(&root, other.root, &null_node, other.null_node);
+                copy_nodes(&root, other.root, &null_node, other);
             }
         }
 
@@ -395,16 +425,22 @@ namespace treeset {
             if (this != &other) {
                 clear();
                 size_ = 0;
-                copy_nodes(&root, other.root, &null_node, other.null_node);
+                copy_nodes(&root, other.root, &null_node, other);
             }
             return *this;
         };
 
         //Конструктор перемещения:
         Set(Set&& other)
-            : root(other.root), null_node(other.null_node), size_(other.size_) {
+            : root(other.root),
+              null_node(other.null_node),
+              min_(other.min_),
+              max_(other.max_),
+              size_(other.size_) {
             other.root = nullptr;
             other.null_node = nullptr;
+            other.min_ = nullptr;
+            other.max_ = nullptr;
             other.size_ = 0;
         };
 
@@ -414,9 +450,13 @@ namespace treeset {
                 clear();
                 root = other.root;
                 null_node = other.null_node;
+                min_ = other.min_;
+                max_ = other.max_;
                 size_ = other.size_;
                 other.root = nullptr;
                 other.null_node = nullptr;
+                other.min_ = nullptr;
+                other.max_ = nullptr;
                 other.size_ = 0;
             }
             return *this;
@@ -620,14 +660,7 @@ namespace treeset {
         };
 
         Iterator<T> begin() const {
-            detail::Node<T>* min = root;
-            if (min == null_node) {
-                return Iterator<T>(null_node, null_node, null_node, null_node);
-            }
-            while (min->left != null_node) {
-                min = min->left;
-            }
-            return Iterator<T>(min, null_node, null_node, root);
+            return Iterator<T>(*min_, null_node, null_node, root);
         }
 
         Iterator<T> end() const {
@@ -653,6 +686,8 @@ namespace treeset {
                 root = new detail::Node<T>(
                     key, BLACK, null_node, null_node, null_node);
                 ++size_;
+                min_ = &root;
+                max_ = &root;
                 return std::make_pair(find(key), true);
             }
 
@@ -661,13 +696,20 @@ namespace treeset {
                 if (tmp->key < key) {
                     tmp->right = new detail::Node<T>(
                         key, RED, tmp, null_node, null_node);
+                    if (tmp == *max_) {
+                        max_ = &(tmp->right);
+                    }
                     add_autobalance(tmp->right);
                 } else {
                     tmp->left = new detail::Node<T>(
                         key, RED, tmp, null_node, null_node);
+                    if (tmp == *min_) {
+                        min_ = &(tmp->left);
+                    }
                     add_autobalance(tmp->left);
                 }
                 ++size_;
+
                 return std::make_pair(find(key), true);
             }
             return std::make_pair(find(key), false);
