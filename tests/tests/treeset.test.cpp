@@ -273,6 +273,13 @@ TEST(TestSet, swap) {
     }
 }
 
+TEST(TestSet, max) {
+    treeset::Set<int> set{5, 6, 4, 7, 3, 8, 2, 9, 1, 0};
+
+    auto max = set.max();
+    ASSERT_EQ(*max, 9);
+}
+
 TEST(TestIterator, constructors) {
     treeset::Set<int> set{1, 2, 3, 4, 5};
 

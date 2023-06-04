@@ -701,6 +701,10 @@ namespace treeset {
             return Iterator<T>(null_node, null_node, null_node, root);
         }
 
+        Iterator<T> max() const {
+            return Iterator<T>(*max_, null_node, null_node, root);
+        }
+
         Iterator<T> find(const T& key) const {
             auto node = root;
             while (node != null_node) {
