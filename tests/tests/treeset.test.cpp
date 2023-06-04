@@ -229,8 +229,48 @@ TEST(TestSet, upperBound) {
 
     ASSERT_EQ(*iter1, *iter2);
 
-    // iter2 = set.upper_bound(-100);
-    // ASSERT_EQ(iter2, set.end());
+    iter2 = set.upper_bound(-100);
+    ASSERT_EQ(iter2, set.end());
+}
+
+TEST(TestSet, equalRange) {
+    treeset::Set<int> set;
+    for (int i = 0; i < 10; i++) {
+        set.insert(i);
+    }
+
+    auto res = set.equal_range(6);
+
+    ASSERT_EQ(*res.first, 6);
+    ASSERT_EQ(*res.second, 7);
+
+    res = set.equal_range(9);
+
+    ASSERT_EQ(*res.first, 9);
+    ASSERT_EQ(res.second, set.end());
+}
+
+TEST(TestSet, swap) {
+    treeset::Set<int> set1{1, 2, 3, 4, 5};
+    treeset::Set<int> set2{6, 7, 8, 9, 10};
+    auto set1_copy = set1;
+    auto set2_copy = set2;
+
+    set1.swap(set2);
+
+    auto iter = set2_copy.begin();
+
+    for (const auto& sElem : set1) {
+        ASSERT_EQ(sElem, *iter);
+        iter++;
+    }
+
+    iter = set1_copy.begin();
+
+    for (const auto& sElem : set2) {
+        ASSERT_EQ(sElem, *iter);
+        iter++;
+    }
 }
 
 TEST(TestIterator, compare) {

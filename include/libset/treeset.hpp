@@ -507,7 +507,7 @@ namespace treeset {
             return !size_;
         }
 
-        size_t size() {
+        std::size_t size() {
             return size_;
         }
 
@@ -568,10 +568,6 @@ namespace treeset {
                     }
                 }
                 return *this;
-            }
-
-            const Iterator& operator++() const {
-                return ++(const_cast<Iterator>(*this));
             }
 
             // постфиксный инкремент
@@ -752,6 +748,25 @@ namespace treeset {
                 return l_bound;
             }
             return end();
+        }
+
+        std::pair<Iterator<T>, Iterator<T>> equal_range(const T& key) {
+            auto l_bound = lower_bound(key);
+            auto u_bound = l_bound;
+            if (l_bound != end()) {
+                while (*u_bound == key && u_bound != end()) {
+                    u_bound++;
+                }
+                if (*u_bound == *l_bound) {
+                    u_bound = end();
+                }
+                return std::make_pair(l_bound, u_bound);
+            }
+            return std::make_pair(end(), end());
+        }
+
+        void swap(Set<T>& other) {
+            std::swap(*this, other);
         }
     };
 
