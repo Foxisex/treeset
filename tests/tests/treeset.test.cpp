@@ -19,18 +19,22 @@ TEST(TestNode, compare) {
 TEST(TestSet, constructors) {
     treeset::Set<int> set1;
     treeset::Set<int> set2(10);
+    treeset::Set<int> set3{5, 6, 4, 7, 3, 8, 2, 9, 1, 0};
 
     ASSERT_EQ(set1.size(), set2.size() - 1);
 
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 10; i++) {
         set1.insert(i);
     }
 
     auto copy_set(set1);
     auto copy_iter = copy_set.begin();
+    auto list_iter = set3.begin();
     for (const auto& setElem : set1) {
         ASSERT_EQ(setElem, *copy_iter);
+        ASSERT_EQ(setElem, *list_iter);
         copy_iter++;
+        list_iter++;
     }
 
     auto moved_set(std::move(set1));
