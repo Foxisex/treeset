@@ -51,25 +51,18 @@ namespace treeset {
         detail::Node<T>** max_;
         std::size_t size_;
 
-        detail::Node<T>* min(detail::Node<T>* node) {
+        detail::Node<T>* min(detail::Node<T>* node) const {
             while (node->left != null_node) {
                 node = node->left;
             }
             return node;
         }
 
-        // detail::Node<T>* max(detail::Node<T>* node) {
-        //     while (node->right != null_node) {
-        //         node = node->right;
-        //     }
-        //     return node;
-        // }
-
-        detail::Node<T>* grandparent(detail::Node<T>* node) {
+        detail::Node<T>* grandparent(detail::Node<T>* node) const {
             return node->parent->parent;
         }
 
-        detail::Node<T>* uncle(detail::Node<T>* node) {
+        detail::Node<T>* uncle(detail::Node<T>* node) const {
             auto grandpa = grandparent(node);
             if (grandpa->left == node->parent) {
                 return grandpa->right;
@@ -80,7 +73,7 @@ namespace treeset {
 
         detail::Node<T>* second_child(
             detail::Node<T>* parent,
-            detail::Node<T>* child) {
+            detail::Node<T>* child) const {
             if (parent->left == child) {
                 return parent->right;
             } else if (parent->right == child) {
@@ -101,7 +94,7 @@ namespace treeset {
             node = null_node;
         }
 
-        detail::Node<T>* find(T key, detail::Node<T>* node) {
+        detail::Node<T>* find(T key, detail::Node<T>* node) const {
             while (node != null_node) {
                 if (node->key < key) {
                     if (node->right == null_node) {
@@ -365,7 +358,7 @@ namespace treeset {
             }
         }
 
-        void print_tree(detail::Node<T>* root, std::string path) {
+        void print_tree(detail::Node<T>* root, std::string path) const {
             if (root == null_node) {
                 return;
             }
@@ -421,7 +414,7 @@ namespace treeset {
             }
         }
 
-        void print() {
+        void print() const {
             std::cout << (*min_)->key << std::endl;
             std::cout << (*max_)->key << std::endl;
             print_tree(root, "m");
@@ -494,7 +487,7 @@ namespace treeset {
             }
         }
 
-        bool contains(T key) {
+        bool contains(T key) const {
             detail::Node<T>* tmp = find(key, root);
             return (tmp && tmp->key == key);
         }
@@ -503,11 +496,11 @@ namespace treeset {
             remove(key, root);
         }
 
-        bool empty() {
+        bool empty() const {
             return !size_;
         }
 
-        std::size_t size() {
+        std::size_t size() const {
             return size_;
         }
 
@@ -708,7 +701,7 @@ namespace treeset {
             return Iterator<T>(null_node, null_node, null_node, root);
         }
 
-        Iterator<T> find(const T& key) {
+        Iterator<T> find(const T& key) const {
             auto node = root;
             while (node != null_node) {
                 if (node->key < key) {
@@ -756,7 +749,7 @@ namespace treeset {
             return std::make_pair(find(key), false);
         }
 
-        Iterator<T> lower_bound(const T& key) {
+        Iterator<T> lower_bound(const T& key) const {
             for (auto i = begin(); i != end(); i++) {
                 if (*i == key) {
                     return i;
@@ -765,7 +758,7 @@ namespace treeset {
             return end();
         }
 
-        Iterator<T> upper_bound(const T& key) {
+        Iterator<T> upper_bound(const T& key) const {
             auto l_bound = lower_bound(key);
             if (l_bound != end()) {
                 while (*l_bound == key && l_bound != end()) {
@@ -776,7 +769,7 @@ namespace treeset {
             return end();
         }
 
-        std::pair<Iterator<T>, Iterator<T>> equal_range(const T& key) {
+        std::pair<Iterator<T>, Iterator<T>> equal_range(const T& key) const {
             auto l_bound = lower_bound(key);
             auto u_bound = l_bound;
             if (l_bound != end()) {
