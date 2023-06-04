@@ -8,8 +8,8 @@
 
 namespace treeset {
 
-    const bool BLACK = false;
-    const bool RED = true;
+    static const bool BLACK = false;
+    static const bool RED = true;
 
     namespace detail {
 
