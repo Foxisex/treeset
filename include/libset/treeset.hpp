@@ -754,38 +754,24 @@ namespace treeset {
         }
 
         Iterator<T> lower_bound(const T& key) const {
-            for (auto i = begin(); i != end(); i++) {
-                if (*i == key) {
-                    return i;
-                }
-            }
-            return end();
+            return find(key);
         }
 
         Iterator<T> upper_bound(const T& key) const {
-            auto l_bound = lower_bound(key);
-            if (l_bound != end()) {
-                while (*l_bound == key && l_bound != end()) {
-                    l_bound++;
-                }
-                return l_bound;
+            auto iter = find(key);
+            if (iter == end()) {
+                return end();
             }
-            return end();
+            return find(key) + 1;
         }
 
         std::pair<Iterator<T>, Iterator<T>> equal_range(const T& key) const {
             auto l_bound = lower_bound(key);
-            auto u_bound = l_bound;
-            if (l_bound != end()) {
-                while (*u_bound == key && u_bound != end()) {
-                    u_bound++;
-                }
-                if (*u_bound == *l_bound) {
-                    u_bound = end();
-                }
-                return std::make_pair(l_bound, u_bound);
+            if (l_bound == end()) {
+                return std::make_pair(end(), end());
             }
-            return std::make_pair(end(), end());
+            auto u_bound = l_bound + 1;
+            return std::make_pair(l_bound, u_bound);
         }
 
         void swap(Set<T>& other) {
